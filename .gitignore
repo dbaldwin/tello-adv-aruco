@@ -580,3 +580,6 @@ $RECYCLE.BIN/
 *.lnk
 
 video_*.mp4
+!/video_22-08-2020_02-51-18_PM.mp4
+!/video_22-08-2020_02-47-52_PM.mp4
+!/video_22-08-2020_01-04-08_PM.mp4

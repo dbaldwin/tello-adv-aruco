@@ -9,7 +9,7 @@ if __name__ == '__main__':
 
     while True:
         frame = vs.read()
-        image, center_points = detected_markers_image(frame, draw_center=True, draw_reference_corner=True, target_id=5)
+        image, center_points, ids = detected_markers_image(frame, draw_center=True, draw_reference_corner=True, target_id=5)
 
         if len(center_points) > 0:
             image, dx, dy, d = detect_distance_from_image_center(image, center_points[0][0], center_points[0][1])

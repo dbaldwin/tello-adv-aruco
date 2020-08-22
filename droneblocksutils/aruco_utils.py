@@ -68,7 +68,7 @@ def get_aruco_markers(image, target_id=None):
     return corners, ids, all_ordered_corners, all_center_points
 
 
-def detected_markers_image(image, draw_reference_corner=None, draw_center=None, target_id=None):
+def detected_markers_image(image, draw_reference_corner=True, draw_center=True, target_id=None):
     """
 
     :param image: image to search for ArUco markers.  Draw bounding boxes.
@@ -106,7 +106,7 @@ def detected_markers_image(image, draw_reference_corner=None, draw_center=None, 
                 cv2.circle(image, center=(corner_x_y[0], corner_x_y[1]), radius=8, color=(255, 0, 0), thickness=-1)
 
 
-    return image, center_pts
+    return image, center_pts, ids
 
 def detect_distance_from_image_center(image, selected_pt_x, selected_pt_y, show_detail=True):
     H, W, _ = image.shape
@@ -149,7 +149,7 @@ if __name__ == '__main__':
 
     while True:
         frame = vs.read()
-        image, center_points = detected_markers_image(frame, draw_center=True, draw_reference_corner=True, target_id=5)
+        image, center_points, ids = detected_markers_image(frame, draw_center=True, draw_reference_corner=True, target_id=5)
 
         if len(center_points) > 0:
             image, dx, dy,d = detect_distance_from_image_center(image, center_points[0][0], center_points[0][1])

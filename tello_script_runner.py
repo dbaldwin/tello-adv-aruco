@@ -48,9 +48,7 @@ def shutdown_gracefully():
     global video_writer
     if tello:
         try:
-            tello.streamoff()
-            if fly:
-                tello.land()
+            tello.end()
         except:
             pass
 
@@ -191,6 +189,12 @@ def _process_keyboard_commands(tello, fly):
         last_command = "Land"
         _display_text(cmd_tello_image, last_command, battery_left)
         exit_flag = 0
+
+    elif key == ord('p'):
+        last_command = "Hover"
+        _display_text(cmd_tello_image, last_command, battery_left)
+        if fly:
+            tello.send_rc_control(0, 0, 0, 0)
 
     elif key == ord('x'):
         tello.emergency()
@@ -363,6 +367,9 @@ if __name__ == '__main__':
 
 
     try:
+        TELLO_LOGGER = logging.getLogger('djitellopy')
+        TELLO_LOGGER.setLevel(logging.ERROR)
+
         cv2.namedWindow("Tello Video")
 
         stop_event = threading.Event()
