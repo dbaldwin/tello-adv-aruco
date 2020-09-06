@@ -7,7 +7,7 @@ MAX_SPEED = 20
 
 # if the distance to the target is less than the minimum then just
 # set to zero to keep Tello close
-MIN_DISTANCE = 20
+MIN_DISTANCE = 30
 
 # Aruco target ID to look for
 # None - assumes that there is only a single aruco target in the field of view
@@ -22,6 +22,11 @@ LOCATE_ARUCO_MARKER = False
 # Flag indicates if the main handler should send a command to stop
 # all motion of the Tello
 STOP_TELLO_MOTION = False
+
+# Flag indicates that we are close enough to the target that we can mark the Aruco Target found
+# True - Target has been found and we should hover
+# False - Target has not been found so continue to search and navigate
+FOUND_TARGET = False
 
 
 def click_capture(event, x, y, flags, param):
@@ -71,7 +76,7 @@ def handler(tello, frame, fly_flag=False):
     :return: None
     :rtype:
     """
-    global STOP_TELLO_MOTION
+    global STOP_TELLO_MOTION, FOUND_TARGET
 
     if frame is None:
         return
@@ -113,11 +118,6 @@ def handler(tello, frame, fly_flag=False):
             else:
                 l_r_speed = min(MAX_SPEED, l_r_speed)
 
-            # add a check to see if it is close and if so
-            # stop movement in that direction
-            if abs(l_r_speed) < MIN_DISTANCE:
-                l_r_speed = 0
-
             u_d_speed = y_distance * -1  # *-1 because the documentation says
             # that negative numbers go up but I am
             # seeing negative numbers go down
@@ -126,10 +126,21 @@ def handler(tello, frame, fly_flag=False):
             else:
                 u_d_speed = min(MAX_SPEED, u_d_speed)
 
-            if abs(u_d_speed) < MIN_DISTANCE:
-                u_d_speed = 0
-
+            # to keep the oscillations to a minimum, if the distance is 'close'
+            # then override the speed settings to zero
             try:
-                tello.send_rc_control(l_r_speed, 0, u_d_speed, 0)
+                if abs(distance) <= MIN_DISTANCE:
+                    print(distance)
+                    u_d_speed = 0
+                    l_r_speed = 0
+                    if FOUND_TARGET is False:
+                        # only set the speeds to zero once
+                        # to make the Tello hover
+                        tello.send_rc_control(0, 0, 0, 0)
+                        FOUND_TARGET = True
+                else:
+                    FOUND_TARGET = False
+                    tello.send_rc_control(l_r_speed, 0, u_d_speed, 0)
+
             except Exception as exc:
                 LOGGER.error(f"send_rc_control exception: {exc}")
