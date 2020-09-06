@@ -1,6 +1,6 @@
 import logging
 import cv2
-from droneblocksutils.aruco_utils import detect_distance_from_image_center
+from droneblocksutils.aruco_utils import detect_distance_from_image_center, draw_center_point
 
 MAX_SPEED = 25
 
@@ -8,9 +8,10 @@ LOGGER = logging.getLogger()
 
 mouse_click_x = -1
 mouse_click_y = -1
+CLEAR_MOUSE_POINTS = False
 
 def click_capture(event, x, y, flags, param):
-    global mouse_click_x, mouse_click_y
+    global mouse_click_x, mouse_click_y, CLEAR_MOUSE_POINTS
     if event == cv2.EVENT_LBUTTONDOWN:
         if mouse_click_y == -1 and mouse_click_x == -1:
             LOGGER.debug(f"Click Capture: {x},{y}")
@@ -20,6 +21,7 @@ def click_capture(event, x, y, flags, param):
             # we have mouse click points so clear them
             mouse_click_x = -1
             mouse_click_y = -1
+            CLEAR_MOUSE_POINTS = True
 
 
 def init(tello, fly_flag=False):
@@ -49,14 +51,17 @@ def handler(tello, frame, fly_flag=False):
     :return: None
     :rtype:
     """
+    global CLEAR_MOUSE_POINTS
 
     if frame is None:
         return
 
+    draw_center_point(frame)
+
     if mouse_click_x > 0 and mouse_click_y > 0:
         image, x_distance, y_distance, distance = detect_distance_from_image_center(frame, mouse_click_x,
                                                                                     mouse_click_y)
-        print(x_distance, y_distance, distance)
+        # print(x_distance, y_distance, distance)
 
         if tello and fly_flag:
             # left/right: -100/100
@@ -81,5 +86,7 @@ def handler(tello, frame, fly_flag=False):
 
     else:
         # no mouse click so just stay put
-        if tello:
+        if tello and CLEAR_MOUSE_POINTS:
+            # then have the Tello hover
             tello.send_rc_control(0, 0, 0, 0)
+            CLEAR_MOUSE_POINTS = False

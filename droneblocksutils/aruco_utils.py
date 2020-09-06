@@ -11,6 +11,17 @@ aruco_dict = aruco.Dictionary_get(aruco.DICT_ARUCO_ORIGINAL)
 
 aruco_params = aruco.DetectorParameters_create()
 
+def draw_center_point(image):
+    H, W, _ = image.shape
+    # calculate the center of the frame as this is (ideally) where
+    # we will we wish to keep the object
+    centerX = W // 2
+    centerY = H // 2
+
+    # draw a circle in the center of the frame
+    cv2.circle(image, center=(centerX, centerY), radius=5, color=(0, 0, 255), thickness=-1)
+
+
 def find_center_point(corners):
     """
     corners - array of 4 [x,y] arrays.

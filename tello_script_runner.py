@@ -190,7 +190,7 @@ def _process_keyboard_commands(tello, fly):
         _display_text(cmd_tello_image, last_command, battery_left)
         exit_flag = 0
 
-    elif key == ord('p'):
+    elif key == ord('h'):
         last_command = "Hover"
         _display_text(cmd_tello_image, last_command, battery_left)
         if fly:
@@ -367,8 +367,8 @@ if __name__ == '__main__':
 
 
     try:
-        TELLO_LOGGER = logging.getLogger('djitellopy')
-        TELLO_LOGGER.setLevel(logging.ERROR)
+        # TELLO_LOGGER = logging.getLogger('djitellopy')
+        # TELLO_LOGGER.setLevel(logging.ERROR)
 
         cv2.namedWindow("Tello Video")
 
