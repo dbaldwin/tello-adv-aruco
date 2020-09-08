@@ -1,7 +1,6 @@
 import cv2
 import time
 from cv2 import aruco
-from imutils.video import VideoStream
 from imutils.perspective import order_points
 import math
 
@@ -11,7 +10,12 @@ aruco_dict = aruco.Dictionary_get(aruco.DICT_ARUCO_ORIGINAL)
 
 aruco_params = aruco.DetectorParameters_create()
 
-def draw_center_point(image):
+def draw_center_point(image, center_color=(0,0,255)):
+    """
+    Given an Image, draw a circle in the center of the image
+    :param image: Image to update
+    :param center_color: Tuple of (B,G,R) for the color of center circle.  Default - RED
+    """
     H, W, _ = image.shape
     # calculate the center of the frame as this is (ideally) where
     # we will we wish to keep the object
@@ -19,7 +23,7 @@ def draw_center_point(image):
     centerY = H // 2
 
     # draw a circle in the center of the frame
-    cv2.circle(image, center=(centerX, centerY), radius=5, color=(0, 0, 255), thickness=-1)
+    cv2.circle(image, center=(centerX, centerY), radius=5, color=center_color, thickness=-1)
 
 
 def find_center_point(corners):
@@ -52,6 +56,7 @@ def get_aruco_markers(image, target_id=None):
     # the 4,2 indicates
     # the single array has 4 elements, each element is a 2d array of x,y pairs
     # corners[n] = [ [x1,y1], [x2,y2], [x3,y3], [x4,y4] ]
+    #     its four corners (top-left, top-right, bottom-right, and bottom-left)
     # where corners[n][0][0] is equal to [x1,y1] and this point is always the reference point no matter
     # where it appears in the orientation of the ArUco code.
 
@@ -67,6 +72,7 @@ def get_aruco_markers(image, target_id=None):
 
                     return [corners[i]], [ids[i]], [ordered_corners], [(int(center_pt_x), int(center_pt_y))]
             else:
+                # we did not find the target id so return Nones
                 return None, None, None, None
 
         else:
@@ -79,21 +85,28 @@ def get_aruco_markers(image, target_id=None):
     return corners, ids, all_ordered_corners, all_center_points
 
 
-def detected_markers_image(image, draw_reference_corner=True, draw_center=True, target_id=None):
+def detect_markers_in_image(image, draw_reference_corner=True, draw_center=True, target_id=None):
     """
 
     :param image: image to search for ArUco markers.  Draw bounding boxes.
     :type image:
-    :param draw_reference_corner:
-    :type draw_reference_corner:
+    :param draw_reference_corner: Every ArUco marker has a reference corner which is the same no
+                                    matter the rotation of the marker.
+                                    True - find the reference corner and maker it
+                                    False - do not mark reference corner
+    :type draw_reference_corner: bool
     :param target_id:
     :type target_id:
-    :return:
-    :rtype:
+    :return: image with all found markers highlighted, center dot, ID number added,
+                List for each Marker found. The list contains a tuple of the form: ((center_x,center_y),point_id)
+    :rtype: image, list
     """
     corners, ids, ordered_corners, center_pts = get_aruco_markers(image, target_id)
     if corners is not None and ids is not None:
+        ids = ids.flatten()
         for i, id in enumerate(ids):
+
+            # Draw a rectangle around the aruco marker not matter the angular distortion
             cv2.line(image, (ordered_corners[i][0][0], ordered_corners[i][0][1]),
                      (ordered_corners[i][1][0], ordered_corners[i][1][1]), (0, 0, 255), 1)
             cv2.line(image, (ordered_corners[i][1][0], ordered_corners[i][1][1]),
@@ -109,7 +122,7 @@ def detected_markers_image(image, draw_reference_corner=True, draw_center=True, 
             if draw_center:
                 cv2.circle(image, center=(center_pt_x, center_pt_y), radius=4, color=(0, 255, 0), thickness=-1)
 
-            cv2.putText(image, f"ID: {id[0]}", (int(center_pt_x), int(center_pt_y)), cv2.FONT_HERSHEY_SIMPLEX, 1,
+            cv2.putText(image, f"ID: {id}", (int(center_pt_x), int(center_pt_y)), cv2.FONT_HERSHEY_SIMPLEX, 1,
                         (0, 255, 0), 2, cv2.LINE_AA)  #
 
             if draw_reference_corner:
@@ -117,7 +130,7 @@ def detected_markers_image(image, draw_reference_corner=True, draw_center=True, 
                 cv2.circle(image, center=(corner_x_y[0], corner_x_y[1]), radius=8, color=(255, 0, 0), thickness=-1)
 
 
-    return image, center_pts, ids
+    return image, list(zip(center_pts, ids.flatten()))
 
 def detect_distance_from_image_center(image, selected_pt_x, selected_pt_y, show_detail=True):
     H, W, _ = image.shape
@@ -155,23 +168,25 @@ def detect_distance_from_image_center(image, selected_pt_x, selected_pt_y, show_
 
 
 if __name__ == '__main__':
-    vs = VideoStream(src=0).start()
+    import imutils
     time.sleep(2)
 
-    while True:
-        frame = vs.read()
-        image, center_points, ids = detected_markers_image(frame, draw_center=True, draw_reference_corner=True, target_id=5)
+    frame = cv2.imread('../test_data/test_porch_2.JPG')
+    frame = imutils.resize(frame, width=800)
+    image, marker_details = detect_markers_in_image(frame, draw_center=True, draw_reference_corner=True, target_id=None)
 
-        if len(center_points) > 0:
-            image, dx, dy,d = detect_distance_from_image_center(image, center_points[0][0], center_points[0][1])
+    print(frame.shape)
+    if len(marker_details) > 0:
+        for marker_detail in marker_details:
+            center_x, center_y = marker_detail[0]
+            print(center_x, center_y)
+            image, dx, dy,d = detect_distance_from_image_center(image, center_x, center_y, show_detail=True)
             print(dx,dy,d)
 
-        # Display the resulting frame
-        cv2.imshow('ArUco', image)
+    # Display the resulting frame
+    cv2.imshow('ArUco', image)
 
-        key = cv2.waitKey(1) & 0xFF
-        if key == ord("q"):
-            break
+    cv2.waitKey(0)
 
     cv2.destroyWindow('ArUco')
 

@@ -1,5 +1,5 @@
 import logging
-from droneblocksutils.aruco_utils import detected_markers_image, detect_distance_from_image_center
+from droneblocksutils.aruco_utils import detect_markers_in_image, detect_distance_from_image_center
 import cv2
 
 # Maximum speed sent to send_rc_control
@@ -102,12 +102,13 @@ def handler(tello, frame, fly_flag=False):
         return
 
     # If you get here, we should try to detect Aruco markers in the video frame.
-    image, center_points, ids = detected_markers_image(frame, draw_center=True, draw_reference_corner=True,
-                                                       target_id=None)
+    image, marker_details = detect_markers_in_image(frame, draw_center=True, draw_reference_corner=True,
+                                                    target_id=None)
 
-    if len(center_points) > 0:
-        image, x_distance, y_distance, distance = detect_distance_from_image_center(image, center_points[0][0],
-                                                                                    center_points[0][1])
+    if len(marker_details) > 0:
+        center_x, center_y = marker_details[0][0]
+        image, x_distance, y_distance, distance = detect_distance_from_image_center(image, center_x,
+                                                                                    center_y)
         LOGGER.debug(x_distance, y_distance, distance)
 
         if tello and fly_flag:
