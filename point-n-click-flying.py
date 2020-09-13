@@ -40,13 +40,14 @@ def init(tello, fly_flag=False):
 
 def handler(tello, frame, fly_flag=False):
     """
+        handler method called from tello_script_runner.py
 
     :param tello: Reference to the DJITelloPy Tello object.
     :type tello: Tello
-    :param frame: image
-    :type frame:
-    :param fly_flag: True - the fly flag was specified and the Tello will take off. False - the Tello will NOT
-                        be instructed to take off
+    :param frame: Tello video frame image
+    :type frame: Image
+    :param fly_flag: True - the fly flag was specified and the Tello will take off.
+                     False - the Tello will NOT be instructed to take off
     :type fly_flag:  bool
     :return: None
     :rtype:

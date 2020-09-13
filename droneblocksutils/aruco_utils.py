@@ -17,8 +17,7 @@ def draw_center_point(image, center_color=(0,0,255)):
     :param center_color: Tuple of (B,G,R) for the color of center circle.  Default - RED
     """
     H, W, _ = image.shape
-    # calculate the center of the frame as this is (ideally) where
-    # we will we wish to keep the object
+    # calculate the center of the frame
     centerX = W // 2
     centerY = H // 2
 
@@ -28,6 +27,7 @@ def draw_center_point(image, center_color=(0,0,255)):
 
 def find_center_point(corners):
     """
+    use points that are on the diagonal to calculate the center points
     corners - array of 4 [x,y] arrays.
     corner[0] = [x0,y0]
         corner[0][0] = x0
