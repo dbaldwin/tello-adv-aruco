@@ -106,15 +106,15 @@ def detect_markers_in_image(image, draw_reference_corner=True, draw_center=True,
         ids = ids.flatten()
         for i, id in enumerate(ids):
 
-            # Draw a rectangle around the aruco marker not matter the angular distortion
+            # Draw a rectangle around the aruco marker no matter the angular distortion
             cv2.line(image, (ordered_corners[i][0][0], ordered_corners[i][0][1]),
-                     (ordered_corners[i][1][0], ordered_corners[i][1][1]), (0, 0, 255), 1)
+                     (ordered_corners[i][1][0], ordered_corners[i][1][1]), (0, 0, 255), 2)
             cv2.line(image, (ordered_corners[i][1][0], ordered_corners[i][1][1]),
-                     (ordered_corners[i][2][0], ordered_corners[i][2][1]), (0, 0, 255), 1)
+                     (ordered_corners[i][2][0], ordered_corners[i][2][1]), (0, 0, 255), 2)
             cv2.line(image, (ordered_corners[i][2][0], ordered_corners[i][2][1]),
-                     (ordered_corners[i][3][0], ordered_corners[i][3][1]), (0, 0, 255), 1)
+                     (ordered_corners[i][3][0], ordered_corners[i][3][1]), (0, 0, 255), 2)
             cv2.line(image, (ordered_corners[i][3][0], ordered_corners[i][3][1]),
-                     (ordered_corners[i][0][0], ordered_corners[i][0][1]), (0, 0, 255), 1)
+                     (ordered_corners[i][0][0], ordered_corners[i][0][1]), (0, 0, 255), 2)
 
             center_pt_x = center_pts[i][0]
             center_pt_y = center_pts[i][1]
