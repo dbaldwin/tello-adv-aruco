@@ -4,6 +4,7 @@ from droneblocksutils.aruco_utils import detect_markers_in_image, detect_distanc
 
 if __name__ == '__main__':
     frame = cv2.imread('../test_data/test_porch_2.JPG')
+    # frame = cv2.imread('../test_data/test_aruco_collection.png')
     print(f"Before Resize: {frame.shape} (Height (y), Width (x)")
     frame = imutils.resize(frame, width=800)
     print(f"After Resize: {frame.shape} (Height (y), Width (x)")
@@ -15,7 +16,7 @@ if __name__ == '__main__':
             marker_center_x, marker_center_y = marker_detail[0]
             print(f"ArUco Marker Center: {marker_center_x}, {marker_center_y}")
             print(f"Id: {marker_detail[1]}")
-            image, dx, dy,d = detect_distance_from_image_center(image, marker_center_x, marker_center_y, show_detail=True)
+            image, dx, dy,d = detect_distance_from_image_center(image, marker_center_x, marker_center_y, show_center=True, show_detail=True, show_center_arrow=True)
             print(f"Move Left: {dx} pixels")
             print(f"Move Down: {dy} pixels")
             print(f"Straight Line Distance: {d:.1f}")

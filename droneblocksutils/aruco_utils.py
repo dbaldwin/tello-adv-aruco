@@ -132,7 +132,8 @@ def detect_markers_in_image(image, draw_reference_corner=True, draw_center=True,
 
     return image, list(zip(center_pts, ids.flatten()))
 
-def detect_distance_from_image_center(image, selected_pt_x, selected_pt_y, show_detail=True):
+
+def detect_distance_from_image_center(image, selected_pt_x, selected_pt_y, show_detail=True, show_center_arrow=True, show_center=True):
     H, W, _ = image.shape
     # calculate the center of the frame as this is (ideally) where
     # we will we wish to keep the object
@@ -140,11 +141,13 @@ def detect_distance_from_image_center(image, selected_pt_x, selected_pt_y, show_
     centerY = H // 2
 
     # draw a circle in the center of the frame
-    cv2.circle(image, center=(centerX, centerY), radius=5, color=(0, 0, 255), thickness=-1)
+    if show_center:
+        cv2.circle(image, center=(centerX, centerY), radius=5, color=(0, 0, 255), thickness=-1)
 
 
     # Draw line from frameCenter to face center
-    cv2.arrowedLine(image, (centerX, centerY), (selected_pt_x, selected_pt_y), color=(0, 255, 0), thickness=2)
+    if show_center_arrow:
+        cv2.arrowedLine(image, (centerX, centerY), (selected_pt_x, selected_pt_y), color=(0, 255, 0), thickness=2)
 
     x_distance = selected_pt_x - centerX
     y_distance = selected_pt_y - centerY
