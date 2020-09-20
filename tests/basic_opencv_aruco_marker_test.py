@@ -52,14 +52,14 @@ if __name__ == '__main__':
 
     # Draw a box around the ArUco marker from corner to corner
     # on all 4 sides
-    cv2.line(image, (Corner1[0], Corner1[1]),
-             (Corner2[0], Corner2[1]), (0, 0, 255), 2)
-    cv2.line(image, (Corner2[0], Corner2[1]),
-             (Corner3[0], Corner3[1]), (0, 0, 255), 2)
-    cv2.line(image, (Corner3[0], Corner3[1]),
-             (Corner4[0], Corner4[1]), (0, 0, 255), 2)
-    cv2.line(image, (Corner4[0], Corner4[1]),
-             (Corner1[0], Corner1[1]), (0, 0, 255), 2)
+    cv2.line(image, (int(Corner1[0]), int(Corner1[1])),
+             (int(Corner2[0]), int(Corner2[1])), (0, 0, 255), 2)
+    cv2.line(image, (int(Corner2[0]), int(Corner2[1])),
+             (int(Corner3[0]), int(Corner3[1])), (0, 0, 255), 2)
+    cv2.line(image, (int(Corner3[0]), int(Corner3[1])),
+             (int(Corner4[0]), int(Corner4[1])), (0, 0, 255), 2)
+    cv2.line(image, (int(Corner4[0]), int(Corner4[1])),
+             (int(Corner1[0]), int(Corner1[1])), (0, 0, 255), 2)
 
     # Show the image
     cv2.imshow('ArUco.detect_markers', image)

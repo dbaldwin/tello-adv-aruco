@@ -1,6 +1,6 @@
 import cv2
 import imutils
-from droneblocksutils.aruco_utils import detect_markers_in_image, detect_distance_from_image_center
+from droneblocksutils.aruco_utils import detect_markers_in_image
 
 window_name = "MouseFollow"
 original_frame = None
@@ -33,7 +33,7 @@ def mouse_move(event, x, y, flags, param):
         cv2.putText(image, f"{dx}", (282, 30), cv2.FONT_HERSHEY_SIMPLEX, 1,
                     (0, 255, 0), 2, cv2.LINE_AA)
 
-        cv2.putText(image, f"{dy*-1}", (440, 30), cv2.FONT_HERSHEY_SIMPLEX, 1,
+        cv2.putText(image, f"{dy}", (440, 30), cv2.FONT_HERSHEY_SIMPLEX, 1,
                     (255, 0, 0), 2, cv2.LINE_AA)
 
         cv2.putText(image, f", 0)", (530, 30), cv2.FONT_HERSHEY_SIMPLEX, 1,
