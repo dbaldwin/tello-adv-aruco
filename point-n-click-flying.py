@@ -1,8 +1,20 @@
 import logging
 import cv2
 from droneblocksutils.aruco_utils import detect_distance_from_image_center, draw_center_point
+import time
 
+# Maximum speed that the Tello will fly
+# if the Speed is to high, the Tello will be more
+# difficult to control.  As a precaution keep the
+# maximum speed reasonable
 MAX_SPEED = 25
+
+# maximum number of seconds that the Tello is allowed to fly
+# in a direction after selected via a mouse click
+# this is a safety precaution so the Tello does not fly
+# forever.
+MAX_FLYING_TIME = 2  # seconds
+flying_start_time = 0.0
 
 LOGGER = logging.getLogger()
 
@@ -10,13 +22,15 @@ mouse_click_x = -1
 mouse_click_y = -1
 CLEAR_MOUSE_POINTS = False
 
+
 def click_capture(event, x, y, flags, param):
-    global mouse_click_x, mouse_click_y, CLEAR_MOUSE_POINTS
+    global mouse_click_x, mouse_click_y, CLEAR_MOUSE_POINTS, flying_start_time
     if event == cv2.EVENT_LBUTTONDOWN:
         if mouse_click_y == -1 and mouse_click_x == -1:
             LOGGER.debug(f"Click Capture: {x},{y}")
             mouse_click_y = y
             mouse_click_x = x
+            flying_start_time = time.time()
         else:
             # we have mouse click points so clear them
             mouse_click_x = -1
@@ -52,33 +66,33 @@ def handler(tello, frame, fly_flag=False):
     :return: None
     :rtype:
     """
-    global CLEAR_MOUSE_POINTS
+    global CLEAR_MOUSE_POINTS, flying_start_time, mouse_click_x, mouse_click_y, CLEAR_MOUSE_POINTS
 
     if frame is None:
         return
+    # get the height and width of the Tello video frame
+    (H, W) = frame.shape[:2]
 
     draw_center_point(frame)
 
+    # if the max flying time has been reached, stop flying
+    # safety precaution
+    if flying_start_time is not None and time.time() - flying_start_time > MAX_FLYING_TIME:
+        mouse_click_x = -1
+        mouse_click_y = -1
+        CLEAR_MOUSE_POINTS = True
+        flying_start_time = None
+
     if mouse_click_x > 0 and mouse_click_y > 0:
-        image, x_distance, y_distance, distance = detect_distance_from_image_center(frame, mouse_click_x,
-                                                                                    mouse_click_y)
-        # print(x_distance, y_distance, distance)
+        image, x_distance, y_distance, distance = detect_distance_from_image_center(frame, mouse_click_x, mouse_click_y)
 
         if tello and fly_flag:
-            # left/right: -100/100
-            l_r_speed = x_distance
-            if l_r_speed < 0:
-                l_r_speed = max(-MAX_SPEED, l_r_speed)
-            else:
-                l_r_speed = min(MAX_SPEED, l_r_speed)
-
-            u_d_speed = y_distance * -1  # *-1 because the documentation says
+            l_r_speed = int((MAX_SPEED * x_distance) / (W // 2))
+            # *-1 because the documentation says
             # that negative numbers go up but I am
             # seeing negative numbers go down
-            if u_d_speed < 0:
-                u_d_speed = max(-MAX_SPEED, u_d_speed)
-            else:
-                u_d_speed = min(MAX_SPEED, u_d_speed)
+            u_d_speed = int((MAX_SPEED * y_distance / (H // 2)) * -1)
+            print(l_r_speed, u_d_speed)
 
             try:
                 tello.send_rc_control(l_r_speed, 0, u_d_speed, 0)

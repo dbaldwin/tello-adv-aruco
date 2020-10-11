@@ -134,6 +134,14 @@ def detect_markers_in_image(image, draw_reference_corner=True, draw_center=True,
 
 
 def detect_distance_from_image_center(image, selected_pt_x, selected_pt_y, show_detail=True, show_center_arrow=True, show_center=True):
+    """
+    :param image:
+    :param selected_pt_x:
+    :param selected_pt_y:
+    :param show_detail:
+    :param show_center:
+    :param show_center_arrow:
+    """
     H, W, _ = image.shape
     # calculate the center of the frame as this is (ideally) where
     # we will we wish to keep the object
