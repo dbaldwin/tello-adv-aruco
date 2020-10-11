@@ -10,3 +10,6 @@ The purpose of this tutorial is demonstrate how we us use OpenCV to:
 > Detect Aruco Markers to control Tello flying
 >
 > 
+
+10/11/2020
+- finish section 3 and 4
