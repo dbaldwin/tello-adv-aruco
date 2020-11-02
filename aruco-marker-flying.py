@@ -3,7 +3,7 @@ from droneblocksutils.aruco_utils import detect_markers_in_image, detect_distanc
 import cv2
 
 # Maximum speed sent to send_rc_control
-MAX_SPEED = 20
+MAX_SPEED = 40
 
 # if the distance to the target is less than the minimum then just
 # set to zero to keep Tello close
@@ -22,11 +22,6 @@ LOCATE_ARUCO_MARKER = False
 # Flag indicates if the main handler should send a command to stop
 # all motion of the Tello
 STOP_TELLO_MOTION = False
-
-# Flag indicates that we are close enough to the target that we can mark the Aruco Target found
-# True - Target has been found and we should hover
-# False - Target has not been found so continue to search and navigate
-FOUND_TARGET = False
 
 
 def click_capture(event, x, y, flags, param):
@@ -76,10 +71,12 @@ def handler(tello, frame, fly_flag=False):
     :return: None
     :rtype:
     """
-    global STOP_TELLO_MOTION, FOUND_TARGET
+    global STOP_TELLO_MOTION, LOCATE_ARUCO_MARKER
 
     if frame is None:
         return
+
+    (H, W) = frame.shape[:2]
 
     # if we are actively looking for Aruco markers, put green circle in upper right corner
     # if we are not looking for Aruco markers, put red circle in upper right corner
@@ -112,35 +109,26 @@ def handler(tello, frame, fly_flag=False):
         LOGGER.debug(x_distance, y_distance, distance)
 
         if tello and fly_flag:
-            # left/right: -100/100
-            l_r_speed = x_distance
-            if l_r_speed < 0:
-                l_r_speed = max(-MAX_SPEED, l_r_speed)
-            else:
-                l_r_speed = min(MAX_SPEED, l_r_speed)
-
-            u_d_speed = y_distance * -1  # *-1 because the documentation says
+            l_r_speed = int((MAX_SPEED * x_distance) / (W // 2))
+            # *-1 because the documentation says
             # that negative numbers go up but I am
             # seeing negative numbers go down
-            if u_d_speed < 0:
-                u_d_speed = max(-MAX_SPEED, u_d_speed)
-            else:
-                u_d_speed = min(MAX_SPEED, u_d_speed)
+            u_d_speed = int((MAX_SPEED * y_distance / (H // 2)) * -1)
+
+            print(l_r_speed, u_d_speed, distance)
 
             # to keep the oscillations to a minimum, if the distance is 'close'
             # then override the speed settings to zero
             try:
                 if abs(distance) <= MIN_DISTANCE:
-                    print(distance)
                     u_d_speed = 0
                     l_r_speed = 0
-                    if FOUND_TARGET is False:
-                        # only set the speeds to zero once
-                        # to make the Tello hover
-                        tello.send_rc_control(0, 0, 0, 0)
-                        FOUND_TARGET = True
+                    LOCATE_ARUCO_MARKER = False
+                    print("\tFOUND TARGET")
+                    tello.send_rc_control(0, 0, 0, 0)
+                    STOP_TELLO_MOTION = False
+
                 else:
-                    FOUND_TARGET = False
                     tello.send_rc_control(l_r_speed, 0, u_d_speed, 0)
 
             except Exception as exc:

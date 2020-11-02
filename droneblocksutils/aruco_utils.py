@@ -129,8 +129,10 @@ def detect_markers_in_image(image, draw_reference_corner=True, draw_center=True,
                 corner_x_y = corners[0][0][0]
                 cv2.circle(image, center=(corner_x_y[0], corner_x_y[1]), radius=8, color=(255, 0, 0), thickness=-1)
 
-
-    return image, list(zip(center_pts, ids.flatten()))
+    if ids is None:
+        return image, []
+    else:
+        return image, list(zip(center_pts, ids.flatten()))
 
 
 def detect_distance_from_image_center(image, selected_pt_x, selected_pt_y, show_detail=True, show_center_arrow=True, show_center=True):

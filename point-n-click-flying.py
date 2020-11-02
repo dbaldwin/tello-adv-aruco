@@ -20,22 +20,23 @@ LOGGER = logging.getLogger()
 
 mouse_click_x = -1
 mouse_click_y = -1
-CLEAR_MOUSE_POINTS = False
+send_hover_command = True
 
 
 def click_capture(event, x, y, flags, param):
-    global mouse_click_x, mouse_click_y, CLEAR_MOUSE_POINTS, flying_start_time
+    global mouse_click_x, mouse_click_y, send_hover_command, flying_start_time
     if event == cv2.EVENT_LBUTTONDOWN:
         if mouse_click_y == -1 and mouse_click_x == -1:
             LOGGER.debug(f"Click Capture: {x},{y}")
             mouse_click_y = y
             mouse_click_x = x
             flying_start_time = time.time()
+            send_hover_command = False
         else:
             # we have mouse click points so clear them
             mouse_click_x = -1
             mouse_click_y = -1
-            CLEAR_MOUSE_POINTS = True
+            send_hover_command = True
 
 
 def init(tello, fly_flag=False):
@@ -66,7 +67,7 @@ def handler(tello, frame, fly_flag=False):
     :return: None
     :rtype:
     """
-    global CLEAR_MOUSE_POINTS, flying_start_time, mouse_click_x, mouse_click_y, CLEAR_MOUSE_POINTS
+    global send_hover_command, flying_start_time, mouse_click_x, mouse_click_y
 
     if frame is None:
         return
@@ -80,7 +81,7 @@ def handler(tello, frame, fly_flag=False):
     if flying_start_time is not None and time.time() - flying_start_time > MAX_FLYING_TIME:
         mouse_click_x = -1
         mouse_click_y = -1
-        CLEAR_MOUSE_POINTS = True
+        send_hover_command = True
         flying_start_time = None
 
     if mouse_click_x > 0 and mouse_click_y > 0:
@@ -101,7 +102,9 @@ def handler(tello, frame, fly_flag=False):
 
     else:
         # no mouse click so just stay put
-        if tello and CLEAR_MOUSE_POINTS:
-            # then have the Tello hover
+        if tello and send_hover_command:
+            # then have the Tello hover. the send_hover_command
+            # will make sure we only do this once.  We dont want to flood
+            # the Tello with a lot of commands
             tello.send_rc_control(0, 0, 0, 0)
-            CLEAR_MOUSE_POINTS = False
+            send_hover_command = False
