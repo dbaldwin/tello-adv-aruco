@@ -6,6 +6,7 @@ if __name__ == '__main__':
     frame = cv2.imread('../test_data/test_porch_2.JPG')
     print(f"Before Resize: {frame.shape} (Height (y), Width (x)")
     frame = imutils.resize(frame, width=800)
+    original = frame.copy()
     print(f"After Resize: {frame.shape} (Height (y), Width (x)")
     image, marker_details = detect_markers_in_image(frame, draw_center=True, draw_reference_corner=True, target_id=None)
     print(f"Image Center: x,y={frame.shape[1]//2}, {frame.shape[0]//2}")
@@ -22,6 +23,7 @@ if __name__ == '__main__':
             print(f"Straight Line Distance: {d:.1f}")
 
     # Display the resulting frame
-    cv2.imshow('ArUco', image)
+    cv2.imshow('Original Image', original)
+    cv2.imshow('ArUco Marker Test', image)
 
     cv2.waitKey(0)
