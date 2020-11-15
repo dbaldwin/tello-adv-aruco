@@ -154,8 +154,7 @@ def detect_distance_from_image_center(image, selected_pt_x, selected_pt_y, show_
     if show_center:
         cv2.circle(image, center=(centerX, centerY), radius=5, color=(0, 0, 255), thickness=-1)
 
-
-    # Draw line from frameCenter to face center
+    # Draw line from frameCenter to selected x,y
     if show_center_arrow:
         cv2.arrowedLine(image, (centerX, centerY), (selected_pt_x, selected_pt_y), color=(0, 255, 0), thickness=2)
 

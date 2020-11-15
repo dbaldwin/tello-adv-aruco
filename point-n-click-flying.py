@@ -3,6 +3,8 @@ import cv2
 from droneblocksutils.aruco_utils import detect_distance_from_image_center, draw_center_point
 import time
 
+LOGGER = logging.getLogger()
+
 # Maximum speed that the Tello will fly
 # if the Speed is to high, the Tello will be more
 # difficult to control.  As a precaution keep the
@@ -14,26 +16,37 @@ MAX_SPEED = 25
 # this is a safety precaution so the Tello does not fly
 # forever.
 MAX_FLYING_TIME = 2  # seconds
-flying_start_time = 0.0
 
-LOGGER = logging.getLogger()
-
+# Runtime Parameters
+flying_start_time = None
 mouse_click_x = -1
 mouse_click_y = -1
 send_hover_command = True
 
 
 def click_capture(event, x, y, flags, param):
+    """
+    Function called by OpenCV to handle mouse events in an image window
+    :param event: OpenCV Mouse Event
+    :param x: x position in pixels
+    :param y: y position in pixels
+    :param flags: unused
+    :param param: unused
+    """
     global mouse_click_x, mouse_click_y, send_hover_command, flying_start_time
     if event == cv2.EVENT_LBUTTONDOWN:
+        # if the left mouse button was pressed
         if mouse_click_y == -1 and mouse_click_x == -1:
+            # if we have not already collected mouse points
+            # then save the new mouse click location
             LOGGER.debug(f"Click Capture: {x},{y}")
             mouse_click_y = y
             mouse_click_x = x
             flying_start_time = time.time()
             send_hover_command = False
         else:
-            # we have mouse click points so clear them
+            # we have mouse click points already
+            # so clear the mouse click x,y and instruct Tello to hover
             mouse_click_x = -1
             mouse_click_y = -1
             send_hover_command = True
