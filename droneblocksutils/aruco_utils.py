@@ -85,7 +85,7 @@ def get_aruco_markers(image, target_id=None):
     return corners, ids, all_ordered_corners, all_center_points
 
 
-def detect_markers_in_image(image, draw_reference_corner=True, draw_center=True, target_id=None):
+def detect_markers_in_image(image, draw_reference_corner=True, draw_center=True, target_id=None, draw_target_id=True, draw_border=True):
     """
 
     :param image: image to search for ArUco markers.  Draw bounding boxes.
@@ -95,8 +95,13 @@ def detect_markers_in_image(image, draw_reference_corner=True, draw_center=True,
                                     True - find the reference corner and maker it
                                     False - do not mark reference corner
     :type draw_reference_corner: bool
-    :param target_id:
+    :param target_id: ArUco ID to detect.  If None, then detect all markers.  if an
+                        id, then only the markers with the specified id will be detected
     :type target_id:
+    :param draw_target_id: Flag to indicate whether the id should be added to the image.  Default - True
+    :type bool:
+    :param draw_border: Flag too indicate whether to draw the border around the marker. Defauilt - True
+    :type bool:
     :return: image with all found markers highlighted, center dot, ID number added,
                 List for each Marker found. The list contains a tuple of the form: ((center_x,center_y),point_id)
     :rtype: image, list
@@ -106,15 +111,16 @@ def detect_markers_in_image(image, draw_reference_corner=True, draw_center=True,
         ids = ids.flatten()
         for i, id in enumerate(ids):
 
-            # Draw a rectangle around the aruco marker no matter the angular distortion
-            cv2.line(image, (ordered_corners[i][0][0], ordered_corners[i][0][1]),
-                     (ordered_corners[i][1][0], ordered_corners[i][1][1]), (0, 0, 255), 2)
-            cv2.line(image, (ordered_corners[i][1][0], ordered_corners[i][1][1]),
-                     (ordered_corners[i][2][0], ordered_corners[i][2][1]), (0, 0, 255), 2)
-            cv2.line(image, (ordered_corners[i][2][0], ordered_corners[i][2][1]),
-                     (ordered_corners[i][3][0], ordered_corners[i][3][1]), (0, 0, 255), 2)
-            cv2.line(image, (ordered_corners[i][3][0], ordered_corners[i][3][1]),
-                     (ordered_corners[i][0][0], ordered_corners[i][0][1]), (0, 0, 255), 2)
+            if draw_border:
+                # Draw a rectangle around the aruco marker no matter the angular distortion
+                cv2.line(image, (ordered_corners[i][0][0], ordered_corners[i][0][1]),
+                         (ordered_corners[i][1][0], ordered_corners[i][1][1]), (0, 0, 255), 2)
+                cv2.line(image, (ordered_corners[i][1][0], ordered_corners[i][1][1]),
+                         (ordered_corners[i][2][0], ordered_corners[i][2][1]), (0, 0, 255), 2)
+                cv2.line(image, (ordered_corners[i][2][0], ordered_corners[i][2][1]),
+                         (ordered_corners[i][3][0], ordered_corners[i][3][1]), (0, 0, 255), 2)
+                cv2.line(image, (ordered_corners[i][3][0], ordered_corners[i][3][1]),
+                         (ordered_corners[i][0][0], ordered_corners[i][0][1]), (0, 0, 255), 2)
 
             center_pt_x = center_pts[i][0]
             center_pt_y = center_pts[i][1]
@@ -122,7 +128,8 @@ def detect_markers_in_image(image, draw_reference_corner=True, draw_center=True,
             if draw_center:
                 cv2.circle(image, center=(center_pt_x, center_pt_y), radius=4, color=(0, 255, 0), thickness=-1)
 
-            cv2.putText(image, f"ID: {id}", (int(center_pt_x), int(center_pt_y)), cv2.FONT_HERSHEY_SIMPLEX, 1,
+            if draw_target_id:
+                cv2.putText(image, f"ID: {id}", (int(center_pt_x), int(center_pt_y)), cv2.FONT_HERSHEY_SIMPLEX, 1,
                         (0, 255, 0), 2, cv2.LINE_AA)  #
 
             if draw_reference_corner:

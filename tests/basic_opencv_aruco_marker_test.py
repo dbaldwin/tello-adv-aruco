@@ -2,6 +2,11 @@ import cv2
 from cv2 import aruco
 import imutils
 
+"""
+This script will use OpenCV to detect ArUco markers in an image, and draw a 
+red bounding box around the detected marker
+"""
+
 if __name__ == '__main__':
 
     aruco_dict = aruco.Dictionary_get(aruco.DICT_ARUCO_ORIGINAL)
@@ -44,6 +49,7 @@ if __name__ == '__main__':
     Corner3 = corners[0][0][2]
     Corner4 = corners[0][0][3]
 
+    print("------ ArUco Marker Details -------")
     print(ID)
     print(Corner1)
     print(Corner2)
@@ -54,10 +60,13 @@ if __name__ == '__main__':
     # on all 4 sides
     cv2.line(image, (int(Corner1[0]), int(Corner1[1])),
              (int(Corner2[0]), int(Corner2[1])), (0, 0, 255), 2)
+
     cv2.line(image, (int(Corner2[0]), int(Corner2[1])),
              (int(Corner3[0]), int(Corner3[1])), (0, 0, 255), 2)
+
     cv2.line(image, (int(Corner3[0]), int(Corner3[1])),
              (int(Corner4[0]), int(Corner4[1])), (0, 0, 255), 2)
+
     cv2.line(image, (int(Corner4[0]), int(Corner4[1])),
              (int(Corner1[0]), int(Corner1[1])), (0, 0, 255), 2)
 

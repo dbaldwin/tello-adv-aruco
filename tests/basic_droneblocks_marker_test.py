@@ -1,6 +1,6 @@
 import cv2
 import imutils
-from droneblocksutils.aruco_utils import detect_markers_in_image, detect_distance_from_image_center
+from droneblocksutils.aruco_utils import detect_markers_in_image
 
 if __name__ == '__main__':
 
@@ -9,7 +9,11 @@ if __name__ == '__main__':
     # convert to gray scale, because ArUco package requires a gray scale image
     image = cv2.imread('../test_data/test_porch_2.JPG')
     image = imutils.resize(image, width=800)
-    image, marker_details = detect_markers_in_image(image, draw_center=False, draw_reference_corner=True, target_id=None)
+    image, marker_details = detect_markers_in_image(image, draw_center=False,
+                                                    draw_reference_corner=False,
+                                                    target_id=None,
+                                                    draw_target_id=False,
+                                                    draw_border=True)
 
     # marker_details:
     #   list of each marker found
