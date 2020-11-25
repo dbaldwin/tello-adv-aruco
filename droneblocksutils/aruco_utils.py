@@ -43,6 +43,9 @@ def get_aruco_markers(image, target_id=None):
 
     all_ordered_corners = []
     all_center_points = []
+    all_corners = []
+    all_ids = []
+
 
     # Convert the color frame to grayscale for marker detection
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -61,28 +64,19 @@ def get_aruco_markers(image, target_id=None):
     # where it appears in the orientation of the ArUco code.
 
     if corners is not None and ids is not None:
-        if target_id is not None:
-            for i, id in enumerate(ids):
-                if id[0] == target_id:
-                    # even though we are looking for a particular target id
-                    # make the return types consistent whether we return one
-                    # or whether we return many
-                    ordered_corners = order_points(corners[i][0])
-                    center_pt_x, center_pt_y = find_center_point(ordered_corners)
+        for i, corner in enumerate(corners):
+            if target_id is not None and ids[i][0] != target_id:
+                continue
 
-                    return [corners[i]], [ids[i]], [ordered_corners], [(int(center_pt_x), int(center_pt_y))]
-            else:
-                # we did not find the target id so return Nones
-                return None, None, None, None
+            all_corners.append(corner)
+            all_ids.append(ids[i][0])
+            ordered_corners = order_points(corner[0])
+            all_ordered_corners.append(ordered_corners)
+            center_pt_x, center_pt_y = find_center_point(ordered_corners)
+            all_center_points.append((int(center_pt_x), int(center_pt_y)))
 
-        else:
-            for i, corner in enumerate(corners):
-                ordered_corners = order_points(corner[0])
-                all_ordered_corners.append(ordered_corners)
-                center_pt_x, center_pt_y = find_center_point(ordered_corners)
-                all_center_points.append((int(center_pt_x), int(center_pt_y)))
 
-    return corners, ids, all_ordered_corners, all_center_points
+    return all_corners, all_ids, all_ordered_corners, all_center_points
 
 
 def detect_markers_in_image(image, draw_reference_corner=True, draw_center=True, target_id=None, draw_target_id=True, draw_border=True):
@@ -107,8 +101,8 @@ def detect_markers_in_image(image, draw_reference_corner=True, draw_center=True,
     :rtype: image, list
     """
     corners, ids, ordered_corners, center_pts = get_aruco_markers(image, target_id)
-    if corners is not None and ids is not None:
-        ids = ids.flatten()
+    if len(ordered_corners) > 0:
+        # ids = ids.flatten()
         for i, id in enumerate(ids):
 
             if draw_border:
@@ -133,13 +127,14 @@ def detect_markers_in_image(image, draw_reference_corner=True, draw_center=True,
                         (0, 255, 0), 2, cv2.LINE_AA)  #
 
             if draw_reference_corner:
-                corner_x_y = corners[0][0][0]
+                corner_x_y = corners[i][0][0]
                 cv2.circle(image, center=(corner_x_y[0], corner_x_y[1]), radius=8, color=(255, 0, 0), thickness=-1)
 
     if ids is None:
         return image, []
     else:
-        return image, list(zip(center_pts, ids.flatten()))
+        # return image, list(zip(center_pts, ids.flatten()))
+        return image, list(zip(center_pts, ids))
 
 
 def detect_distance_from_image_center(image, selected_pt_x, selected_pt_y, show_detail=True, show_center_arrow=True, show_center=True):

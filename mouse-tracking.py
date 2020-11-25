@@ -55,7 +55,7 @@ def mouse_movement_detected(event, x, y, flags, param):
 
 
 if __name__ == '__main__':
-    original_frame = cv2.imread('./test_data/grid_image.jpg')
+    original_frame = cv2.imread('test_data/grid_image.jpg')
     print(f"Shape: {original_frame.shape}")
     original_frame = imutils.resize(original_frame, width=800)
     frame = original_frame.copy()

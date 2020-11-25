@@ -8,7 +8,9 @@ if __name__ == '__main__':
     frame = imutils.resize(frame, width=800)
     original = frame.copy()
     print(f"After Resize: {frame.shape} (Height (y), Width (x)")
+
     image, marker_details = detect_markers_in_image(frame, draw_center=True, draw_reference_corner=True, target_id=None)
+
     print(f"Image Center: x,y={frame.shape[1]//2}, {frame.shape[0]//2}")
     print(f"Number of ArUco Markers found: {len(marker_details)}")
     print(f"Marker Details: {marker_details}")

@@ -85,22 +85,22 @@ def handler(tello, frame, fly_flag=False):
     else:
         cv2.circle(frame, center=(frame.shape[1] - 10, 10), radius=4, color=(0, 0, 255), thickness=-1)
 
+    # if the flag to send the stop motion has been set
+    if STOP_TELLO_MOTION is True:
+        # then send the zero velocity via rc_control to stop
+        # any motion of the Tello.
+        tello.send_rc_control(0, 0, 0, 0)
+        # reset the STOP_TELLO_MOTION flag to false as we have handled the
+        # request
+        STOP_TELLO_MOTION = False
+
     # if we are not looking for aruco markers
     if LOCATE_ARUCO_MARKER is False:
-        # if the flag to send the stop motion has been set
-        if STOP_TELLO_MOTION is True:
-            # then send the zero velocity via rc_control to stop
-            # any motion of the Tello.
-            tello.send_rc_control(0, 0, 0, 0)
-            # reset the STOP_TELLO_MOTION flag to false as we have handled the
-            # request
-            STOP_TELLO_MOTION = False
-
         return
 
     # If you get here, we should try to detect Aruco markers in the video frame.
     image, marker_details = detect_markers_in_image(frame, draw_center=True, draw_reference_corner=True,
-                                                    target_id=None)
+                                                    target_id=ARUCO_TARGET_ID)
 
     if len(marker_details) > 0:
         center_x, center_y = marker_details[0][0]
@@ -123,10 +123,12 @@ def handler(tello, frame, fly_flag=False):
                 if abs(distance) <= MIN_DISTANCE:
                     u_d_speed = 0
                     l_r_speed = 0
-                    LOCATE_ARUCO_MARKER = False
+                    # True - we want to keep looking for markers
+                    LOCATE_ARUCO_MARKER = True
                     print("\tFOUND TARGET")
-                    tello.send_rc_control(0, 0, 0, 0)
-                    STOP_TELLO_MOTION = False
+                    # tello.send_rc_control(0, 0, 0, 0)
+                    # Instruct Tello to hover
+                    STOP_TELLO_MOTION = True
 
                 else:
                     tello.send_rc_control(l_r_speed, 0, u_d_speed, 0)

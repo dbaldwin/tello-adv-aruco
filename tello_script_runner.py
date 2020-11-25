@@ -224,7 +224,7 @@ def _get_video_frame(frame_read, vid_sim):
     return f
 
 
-def process_tello_video_feed(handler_file, video_queue, stop_event, video_event, fly=False, tello_video_sim=False):
+def process_tello_video_feed(handler_file, video_queue, stop_event, video_event, fly=False, tello_video_sim=False, display_tello_video=False):
     """
 
     :param exit_event: Multiprocessing Event.  When set, this event indicates that the process should stop.
@@ -247,7 +247,7 @@ def process_tello_video_feed(handler_file, video_queue, stop_event, video_event,
     handler_method = None
 
     try:
-        if fly or ( not tello_video_sim and video_queue):
+        if fly or ( not tello_video_sim and display_tello_video):
             tello = Tello()
             rtn = tello.connect()
             LOGGER.debug(f"Connect Return: {rtn}")
@@ -278,7 +278,7 @@ def process_tello_video_feed(handler_file, video_queue, stop_event, video_event,
             frame = _get_video_frame(frame_read, tello_video_sim)
 
             if frame is None:
-                LOGGER.debug("Failed to read video frame")
+                # LOGGER.debug("Failed to read video frame")
                 if handler_method:
                     handler_method(tello, frame, fly)
                 # else:
@@ -322,10 +322,6 @@ def process_tello_video_feed(handler_file, video_queue, stop_event, video_event,
 if __name__ == '__main__':
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
-
-    LOGGER.info("****************")
-    LOGGER.info("execute: export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES  ")
-    LOGGER.info("****************")
 
     ap = argparse.ArgumentParser()
     ap.add_argument("--display-video", action='store_true', help="Display Drone video using OpenCV.  Default: 1")
@@ -375,7 +371,7 @@ if __name__ == '__main__':
         stop_event = threading.Event()
         ready_to_show_video_event = threading.Event()
         p1 = threading.Thread(target=process_tello_video_feed,
-                     args=(handler_file, video_queue, stop_event, ready_to_show_video_event, fly, tello_video_sim,))
+                     args=(handler_file, video_queue, stop_event, ready_to_show_video_event, fly, tello_video_sim, display_video,))
         p1.setDaemon(True)
         p1.start()
 
@@ -399,7 +395,7 @@ if __name__ == '__main__':
 
             ready_to_show_video_event.set()
             try:
-                LOGGER.debug(f"Q size: {video_queue.qsize()}")
+                # LOGGER.debug(f"Q size: {video_queue.qsize()}")
                 frame = video_queue.get(block=False)
             except:
                 frame = None
