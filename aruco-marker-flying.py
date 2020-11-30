@@ -1,6 +1,9 @@
+import cv2
 import logging
 from droneblocksutils.aruco_utils import detect_markers_in_image, detect_distance_from_image_center
-import cv2
+
+LOGGER = logging.getLogger()
+LOGGER.setLevel(logging.ERROR) # change to logging.DEBUG for more verbose logging
 
 # Maximum speed sent to send_rc_control
 MAX_SPEED = 40
@@ -13,8 +16,6 @@ MIN_DISTANCE = 30
 # None - assumes that there is only a single aruco target in the field of view
 # number - then only look for the specified aruco ID
 ARUCO_TARGET_ID = None
-
-LOGGER = logging.getLogger()
 
 # Flag to indicate whether the handler method should start to locate aruco markers.
 LOCATE_ARUCO_MARKER = False
@@ -80,10 +81,12 @@ def handler(tello, frame, fly_flag=False):
 
     # if we are actively looking for Aruco markers, put green circle in upper right corner
     # if we are not looking for Aruco markers, put red circle in upper right corner
+    aruco_marker_active_color=(0, 0, 255) # Assume Red, meaning we are NOT looking for ArUco markers
     if LOCATE_ARUCO_MARKER:
-        cv2.circle(frame, center=(frame.shape[1]-10, 10), radius=4, color=(0, 255, 0), thickness=-1)
-    else:
-        cv2.circle(frame, center=(frame.shape[1] - 10, 10), radius=4, color=(0, 0, 255), thickness=-1)
+        aruco_marker_active_color = (0, 255, 0) # Green, if we are looking for ArUco markers
+
+    # Draw circle in upper right corner to indicate if we are looking for ArUco Markers
+    cv2.circle(frame, center=(frame.shape[1]-10, 10), radius=4, color=aruco_marker_active_color, thickness=-1)
 
     # if the flag to send the stop motion has been set
     if STOP_TELLO_MOTION is True:
@@ -115,7 +118,7 @@ def handler(tello, frame, fly_flag=False):
             # seeing negative numbers go down
             u_d_speed = int((MAX_SPEED * y_distance / (H // 2)) * -1)
 
-            print(l_r_speed, u_d_speed, distance)
+            LOGGER.debug(l_r_speed, u_d_speed, distance)
 
             # to keep the oscillations to a minimum, if the distance is 'close'
             # then override the speed settings to zero
@@ -125,12 +128,12 @@ def handler(tello, frame, fly_flag=False):
                     l_r_speed = 0
                     # True - we want to keep looking for markers
                     LOCATE_ARUCO_MARKER = True
-                    print("\tFOUND TARGET")
-                    # tello.send_rc_control(0, 0, 0, 0)
+                    LOGGER.debug("\tFOUND TARGET")
                     # Instruct Tello to hover
                     STOP_TELLO_MOTION = True
 
                 else:
+                    # we are not close enough to the ArUco marker, so keep flying
                     tello.send_rc_control(l_r_speed, 0, u_d_speed, 0)
 
             except Exception as exc:

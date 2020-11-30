@@ -135,6 +135,8 @@ def _process_keyboard_commands(tello, fly):
         LOGGER.debug(f"key: {key}")
 
     if key == 27:  # ESC
+        last_command = "Land"
+        _display_text(cmd_tello_image, last_command, battery_left)
         exit_flag = 0
 
     elif key == ord('w'):
