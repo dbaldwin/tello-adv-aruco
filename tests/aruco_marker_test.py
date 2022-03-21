@@ -1,3 +1,6 @@
+import sys
+
+sys.path.append("..")
 import cv2
 import imutils
 from droneblocksutils.aruco_utils import detect_markers_in_image, detect_distance_from_image_center

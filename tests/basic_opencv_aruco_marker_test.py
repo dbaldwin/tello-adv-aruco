@@ -1,3 +1,7 @@
+import sys
+
+sys.path.append("..")
+
 import cv2
 from cv2 import aruco
 import imutils
