@@ -276,7 +276,7 @@ def process_tello_video_feed(handler_file, video_queue, stop_event, video_event,
             local_video_stream = VideoStream(src=0).start()
             time.sleep(2)
 
-        while not stop_event.isSet():
+        while not stop_event.is_set():
             frame = _get_video_frame(frame_read, tello_video_sim)
 
             if frame is None:
@@ -326,7 +326,7 @@ if __name__ == '__main__':
     signal.signal(signal.SIGTERM, signal_handler)
 
     ap = argparse.ArgumentParser()
-    ap.add_argument("--display-video", action='store_true', help="Display Drone video using OpenCV.  Default: 1")
+    ap.add_argument("--display-video", action='store_true', help="Display Drone video using OpenCV.  Default: False")
     ap.add_argument("--save-video", action='store_true', help="Save video as MP4 file.  Default: False")
     ap.add_argument("--handler", type=str, required=False, default="",
                     help="Name of the python file with an init and handler method.  Do not include the .py extension and it has to be in the same folder as this main driver")

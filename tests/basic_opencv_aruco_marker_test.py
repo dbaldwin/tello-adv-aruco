@@ -13,9 +13,9 @@ red bounding box around the detected marker
 
 if __name__ == '__main__':
 
-    aruco_dict = aruco.Dictionary_get(aruco.DICT_ARUCO_ORIGINAL)
+    aruco_dict = aruco.getPredefinedDictionary(aruco.DICT_ARUCO_ORIGINAL)
 
-    aruco_params = aruco.DetectorParameters_create()
+    aruco_params = aruco.DetectorParameters()
 
     # Read in an image
     # resize so it is easier to view
