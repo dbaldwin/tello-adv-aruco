@@ -16,7 +16,7 @@ setup(
         'jupyter==1.0.0',
         'imutils==0.5.4',
         'scipy==1.12.0',
-        'DJITelloPy==2.5'
+        'DJITelloPy==2.4.0'
     ]
 
 )
