@@ -5,10 +5,12 @@ from imutils.perspective import order_points
 import math
 
 # Setup the aruco marker detection
-aruco_dict = aruco.Dictionary_get(aruco.DICT_ARUCO_ORIGINAL)
+# aruco_dict = aruco.Dictionary_get(aruco.DICT_ARUCO_ORIGINAL)
 # aruco_dict = aruco.Dictionary_get(aruco.DICT_6X6_250)
+aruco_dict = aruco.getPredefinedDictionary(aruco.DICT_ARUCO_ORIGINAL)
 
-aruco_params = aruco.DetectorParameters_create()
+# aruco_params = aruco.DetectorParameters_create()
+aruco_params = aruco.DetectorParameters()
 
 def draw_center_point(image, center_color=(0,0,255)):
     """
